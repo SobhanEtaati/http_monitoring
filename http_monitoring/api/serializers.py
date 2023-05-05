@@ -1,8 +1,10 @@
 from rest_framework import serializers
-from .models import CustomUsers, URLs
+from .models import CustomUsers, Urls
 
 class CustomUserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
+    email = serializers.CharField(max_length=80)
+    username = serializers.CharField(max_length=45)
+    password = serializers.CharField(min_length=8, write_only=True)
 
     class Meta:
         model = CustomUsers
@@ -18,7 +20,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
         return user
     
 
-class URLSerializer(serializers.Serializer):
-    model = URLs
+class UrlSerializer(serializers.Serializer):
+    model = Urls
     url = serializers.URLField()
-    status_code = serializers.IntegerField(max_length=3)
+    status_code = serializers.IntegerField()
