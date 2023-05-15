@@ -6,20 +6,25 @@ from django.contrib.auth.models import AbstractUser, Group, Permission
 class CustomUserManager(BaseUserManager):
 
     def create_user(self,username ,email, password=None):
+        print('in CustomUserManager - create_user method')
         if not email:
             raise ValueError('The Email field must be set')
 
         email = self.normalize_email(email)
         user = self.model(email=email, username=username)
+        # Here we hash the chosen password 
         user.set_password(password)
         user.save()
         return user
     
     def create_superuser(self,username ,email, password=None):
-        return self.create_user(email ,username ,password)
+        user=self.create_user(email ,username ,password)
+        user.is_staff=True
+        user.is_superuser=True
+        user.save()
+        return user
 
-
-class CustomUsers(AbstractUser):
+class User(AbstractUser):
     email = models.EmailField(primary_key=True, unique=True)
     username = models.CharField(unique=True, max_length=30)
     
@@ -45,19 +50,3 @@ class CustomUsers(AbstractUser):
     def __str__(self):
         return self.email
 
-
-class Urls(models.Model):
-    url = models.CharField(primary_key=True, editable=False, max_length=500)
-    email = models.ForeignKey(CustomUsers, on_delete = models.DO_NOTHING)
-    is_successful = models.BooleanField(default=False)
-    url_status_code = models.IntegerField
-
-    if (url_status_code == 200):
-        successful = True
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-            fields=['email','url'], name = 'Urls_unique_value'
-            )
-        ]
